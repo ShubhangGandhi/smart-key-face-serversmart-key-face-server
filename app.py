@@ -4,14 +4,17 @@ import shutil
 
 app = FastAPI()
 
-# create faces folder
+# Create storage folder
 os.makedirs("faces", exist_ok=True)
 
+# Root route
 @app.get("/")
 def home():
+
     return {"status": "running"}
 
 
+# Enrollment API
 @app.post("/enroll")
 async def enroll(name: str = Form(...), file: UploadFile = File(...)):
 
@@ -25,12 +28,23 @@ async def enroll(name: str = Form(...), file: UploadFile = File(...)):
 
         shutil.copyfileobj(file.file, buffer)
 
-    return {"status": "success", "message": "Face enrolled"}
+    return {
+
+        "status": "success",
+
+        "message": f"{name} enrolled"
+
+    }
 
 
+# Recognition API
 @app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):
 
-    # temporary response
+    # temporary test response
 
-    return {"result": "unknown"}
+    return {
+
+        "result": "unknown"
+
+    }
