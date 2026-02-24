@@ -1,50 +1,41 @@
-from fastapi import FastAPI, File, UploadFile, Form
+from fastapi import FastAPI, File, UploadFile
 import os
-import shutil
+import cv2
+import numpy as np
+from deepface import DeepFace
 
 app = FastAPI()
 
-# Create storage folder
-os.makedirs("faces", exist_ok=True)
+DB="faces"
 
-# Root route
 @app.get("/")
-def home():
+def root():
+    return {"message":"Smart Key Server Running"}
 
-    return {"status": "running"}
-
-
-# Enrollment API
-@app.post("/enroll")
-async def enroll(name: str = Form(...), file: UploadFile = File(...)):
-
-    folder = f"faces/{name}"
-
-    os.makedirs(folder, exist_ok=True)
-
-    file_path = f"{folder}/{file.filename}"
-
-    with open(file_path, "wb") as buffer:
-
-        shutil.copyfileobj(file.file, buffer)
-
-    return {
-
-        "status": "success",
-
-        "message": f"{name} enrolled"
-
-    }
-
-
-# Recognition API
 @app.post("/recognize")
-async def recognize(file: UploadFile = File(...)):
 
-    # temporary test response
+async def recognize(file:UploadFile=File(...)):
 
-    return {
+    contents=await file.read()
 
-        "result": "unknown"
+    nparr=np.frombuffer(contents,np.uint8)
 
-    }
+    img=cv2.imdecode(nparr,cv2.IMREAD_COLOR)
+
+    try:
+
+        result=DeepFace.find(img,DB,enforce_detection=False)
+
+        if len(result[0])>0:
+
+            name=result[0]['identity'][0]
+
+            return {"name":name}
+
+        else:
+
+            return {"name":"unknown"}
+
+    except:
+
+        return {"name":"unknown"}
