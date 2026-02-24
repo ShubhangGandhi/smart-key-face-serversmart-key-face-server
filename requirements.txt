@@ -1,3 +1,14 @@
-fastapi==0.110.0
-uvicorn==0.29.0
-python-multipart==0.0.9
+fastapi
+uvicorn
+python-multipart
+
+opencv-python-headless
+
+deepface
+
+numpy
+pandas
+
+tensorflow-cpu
+
+pillow
